@@ -1,0 +1,54 @@
+{
+  "version": "3.2.4",
+  "scope": "Local release packaging and future version generation checks performed before publication; live Tampermonkey upgrade not verified.",
+  "passed": 11,
+  "failed": 0,
+  "results": [
+    {
+      "name": "Original 3.2.3 source remains unchanged",
+      "passed": true
+    },
+    {
+      "name": "Only runtime version differs from 3.2.3",
+      "passed": true
+    },
+    {
+      "name": "Header identity, grants, matches and dependencies are unchanged",
+      "passed": true
+    },
+    {
+      "name": "HTTPS GitHub update addresses have no authentication or local host dependency",
+      "passed": true
+    },
+    {
+      "name": "Metadata, manifest, archive, syntax and SHA-256 match",
+      "passed": true
+    },
+    {
+      "name": "Invalid syntax and unexpected update destination are rejected",
+      "passed": true
+    },
+    {
+      "name": "Same version, downgrade and invalid versions are rejected without changing files",
+      "passed": true
+    },
+    {
+      "name": "Version bump generates a complete next release and preserves the old archive",
+      "passed": true
+    },
+    {
+      "name": "Changed script with stale hashes is rejected",
+      "passed": true
+    },
+    {
+      "name": "Package contains only allowlisted release files, without Git or session history",
+      "passed": true
+    },
+    {
+      "name": "Font notices and source font manifest preserve original bytes",
+      "passed": true
+    }
+  ],
+  "scriptSha256": "0adda5eac6de37226bc49ddb8c625497683c01b238503624e3bd97cb92463a4d",
+  "metadataSha256": "1ef8b611d23b443117cc54759111b858e5308d2267909460e67e25e6b2a18caf"
+}

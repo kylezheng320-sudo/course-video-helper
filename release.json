@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "channel": "stable",
+  "version": "3.2.4",
+  "files": {
+    "video-helper.user.js": {
+      "sha256": "0adda5eac6de37226bc49ddb8c625497683c01b238503624e3bd97cb92463a4d"
+    },
+    "video-helper.meta.js": {
+      "sha256": "1ef8b611d23b443117cc54759111b858e5308d2267909460e67e25e6b2a18caf"
+    }
+  }
+}
