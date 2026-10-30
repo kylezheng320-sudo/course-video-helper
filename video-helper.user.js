@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         学习通视频助手：弹题逐项重试
 // @namespace    local.chaoxing.video-helper
-// @version      3.2.4
-// @description  修复任务已完成但视频仍在播放时的切节：先暂停、选择下一视频，确认目录与播放器更新后继续；保留目录估算与累计统计。
+// @version      3.3.0
+// @description  課程影片播放輔助：一鍵訂閱 GitHub 穩定版並持續更新，提供播放控制、剩餘時間估算與本機統計。
 // @match        https://*.chaoxing.com/mycourse/studentstudy*
 // @match        https://*.chaoxing.com/mooc-ans/mycourse/studentstudy*
 // @match        https://*.chaoxing.com/ananas/modules/video/index*
@@ -14,6 +14,8 @@
 // @grant        GM_setValue
 // @grant        unsafeWindow
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js
+// @homepageURL  https://github.com/kylezheng320-sudo/course-video-helper
+// @supportURL   https://github.com/kylezheng320-sudo/course-video-helper/issues
 // @run-at       document-start
 // @updateURL    https://raw.githubusercontent.com/kylezheng320-sudo/course-video-helper/main/video-helper.meta.js
 // @downloadURL  https://raw.githubusercontent.com/kylezheng320-sudo/course-video-helper/main/video-helper.user.js
@@ -375,7 +377,7 @@
 
   const referenceJQuery = typeof jQuery === 'function' && jQuery.fn?.jquery === '3.6.0' && typeof jQuery.noConflict === 'function' ? jQuery.noConflict(true) : null;
   if (location.hostname === 'stuonline.zhihuishu.com' && /^\/stuonline\/stuLearnReportNew\/index\/?$/.test(location.pathname)) { createViewingTime().startReport(); return; }
-  const VERSION = '3.2.4';
+  const VERSION = '3.3.0';
   const TICK_MS = 600;
   const SELECT_DELAY = 600;
   const RETRY_AFTER = 3000;
@@ -2548,6 +2550,8 @@ async choice_function(){
     }
   }
   function buildPanel() {
+    const subscriptionURL = 'https://raw.githubusercontent.com/kylezheng320-sudo/course-video-helper/main/subscribe.user.js';
+    const releaseNotesURL = 'https://github.com/kylezheng320-sudo/course-video-helper/blob/main/CHANGELOG.md';
     if (window !== window.top || !document.body) return;
     loadUIFonts();
     const saved = GM_getValue(UI_KEY, {}) || {};
@@ -2589,6 +2593,9 @@ async choice_function(){
 
 .estimate{margin-top:16px}.estimate-label{font-size:12px;color:var(--sub)}.remaining-value{font-family:"Geist","Microsoft YaHei",sans-serif;font-size:20px;font-weight:500;line-height:28px;margin-top:4px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.estimate-detail{margin:6px 0 0;font-size:12px;line-height:19px;color:var(--sub);overflow-wrap:anywhere}.estimate-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;font-size:12px;line-height:20px;color:var(--sub)}.estimate-tools label{display:flex;align-items:center;gap:6px}.estimate-tools select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--control);border-radius:4px;min-height:30px;padding:2px 4px}.estimate-tools select:focus-visible,.estimate-tools a:focus-visible,summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.estimate-tools a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer}.playback-statistics{margin-top:22px;border-top:1px solid var(--border);padding-top:12px}.playback-statistics summary{font-size:14px;line-height:24px;cursor:pointer;color:var(--ink)}.playback-statistics dl{margin:12px 0 0;font-size:12px;line-height:24px}.playback-statistics dl>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}.playback-statistics dt{color:var(--sub)}.playback-statistics dd{margin:0}.playback-statistics time{font-family:"Geist Mono",monospace;font-size:14px;font-variant-numeric:tabular-nums}.compact-time #compactRemaining{font-size:12px;letter-spacing:0}.estimate-tools select:disabled{color:var(--sub)}@media(pointer:coarse){.estimate-tools select,.estimate-tools a,.playback-statistics summary{min-height:44px;display:inline-flex;align-items:center}}
 
+
+.brand .version-link{display:block;max-width:100%;margin:1px 0 0;padding:0;border:0;background:transparent;color:var(--sub);font:400 12px/18px "Geist","Microsoft YaHei",sans-serif;white-space:nowrap;text-align:left;touch-action:manipulation}.brand .version-link:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px}.brand .version-link:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+.subscription-dialog{width:408px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--ink);font:14px/1.6 "Geist","Microsoft YaHei",sans-serif;overflow:auto;box-shadow:0 16px 56px #0003}.subscription-dialog::backdrop{background:#0007}.subscription-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.subscription-heading h2{margin:0;font-size:22px;line-height:30px;font-weight:500;letter-spacing:-.02em}.subscription-close{border:0;background:transparent;color:var(--sub);font:inherit;min-height:36px;padding:4px 0 4px 8px}.subscription-close:hover{color:var(--ink)}.subscription-lead{margin:24px 0 8px;font-size:18px;line-height:28px;font-weight:500}.subscription-copy{margin:0;color:var(--sub);font-size:13px;line-height:22px}.subscription-facts{margin:20px 0;padding:12px 14px;background:var(--soft);border-radius:6px;font-size:13px;line-height:26px}.subscription-facts>div{display:flex;align-items:baseline;justify-content:space-between;gap:16px}.subscription-facts dt{color:var(--sub)}.subscription-facts dd{margin:0;font-variant-numeric:tabular-nums}.subscription-field-label{display:block;margin:0 0 8px;font-size:13px}.subscription-field{display:flex;width:100%;min-width:0;border:1px solid var(--control);border-radius:6px;overflow:hidden}.subscription-field input{display:block;flex:1;min-width:0;width:0;padding:9px 10px;border:0;background:var(--bg);color:var(--ink);font:12px/20px "Geist","Microsoft YaHei",sans-serif;text-overflow:ellipsis}.subscription-field button{flex:none;border:0;border-left:1px solid var(--control);padding:8px 12px;background:var(--soft);color:var(--ink);font-size:13px;line-height:22px}.subscription-field input:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}.subscription-feedback{margin:8px 0 18px;color:var(--sub);font-size:12px;line-height:20px;min-height:20px}.subscription-install{width:100%;text-decoration:none}.subscription-notes{display:block;width:fit-content;margin-top:14px;color:var(--ink);text-decoration:underline;text-underline-offset:4px;font-size:13px;line-height:24px}.subscription-notes:focus-visible{outline:2px solid var(--focus);outline-offset:3px}@media(pointer:coarse){.brand .version-link{min-height:28px}.subscription-close,.subscription-field button,.subscription-notes{min-height:44px}}@media(max-width:380px){.subscription-dialog{padding:20px}.subscription-heading h2{font-size:20px}.subscription-lead{font-size:16px}}
 </style>
 <section class="shell" id="shell" aria-label="${platformLabel}视频助手">
   <header class="header" id="dragHandle" tabindex="0" aria-label="面板位置，可拖动或用方向键移动" title="拖动面板，或聚焦后用方向键移动">
@@ -2617,6 +2624,18 @@ async choice_function(){
     </div><button id="showQuiz" type="button" class="action secondary quiz-restore" hidden>显示弹题</button>` : ''}
     <details class="playback-statistics"><summary>播放统计</summary><dl><div><dt>本课程（本机）</dt><dd><time id="coursePlayed">00:00:00</time></dd></div><div><dt>本机累计</dt><dd><time id="allPlayed">00:00:00</time></dd></div></dl><p id="statisticsNote" class="estimate-detail">自启用统计起，含重播；本机记录，不代表平台学时。</p></details><div class="footer"><span id="footerText">偏好自动保存</span><button type="button" id="position" class="icon-button" aria-label="恢复默认面板位置" title="恢复默认面板位置">${icons.position}</button></div>
   </div>
+
+  <dialog id="subscriptionDialog" class="subscription-dialog" aria-labelledby="subscriptionTitle" aria-describedby="subscriptionDescription">
+    <div class="subscription-heading"><h2 id="subscriptionTitle">自動更新</h2><button type="button" id="subscriptionClose" class="subscription-close" autofocus>關閉</button></div>
+    <p class="subscription-lead">安裝一次，接收後續更新。</p>
+    <p id="subscriptionDescription" class="subscription-copy">訂閱 GitHub 穩定版，讓 Tampermonkey 依設定檢查更新。新版安裝後，重新整理課程頁面即可使用。</p>
+    <dl class="subscription-facts"><div><dt>目前版本</dt><dd>v${VERSION}</dd></div><div><dt>更新來源</dt><dd>GitHub · 穩定版</dd></div></dl>
+    <label class="subscription-field-label" for="subscriptionLink">訂閱連結</label>
+    <div class="subscription-field"><input id="subscriptionLink" type="url" readonly spellcheck="false" value="${subscriptionURL}"><button type="button" id="copySubscription">複製</button></div>
+    <p id="subscriptionFeedback" class="subscription-feedback" role="status" aria-live="polite">開啟連結即可安裝或更新。</p>
+    <a class="action primary subscription-install" href="${subscriptionURL}" target="_blank" rel="noopener noreferrer">安裝並訂閱 ↗</a>
+    <a class="subscription-notes" href="${releaseNotesURL}" target="_blank" rel="noopener noreferrer">查看更新紀錄 ↗</a>
+  </dialog>
 </section>
 `;
     const get = id => shadow.getElementById(id);
@@ -2631,9 +2650,35 @@ async choice_function(){
     const headerLogo = document.createElement('span'), headerBrand = document.createElement('div');
     headerLogo.className = 'logo'; headerLogo.innerHTML = icon('<path d="M6 4H3v16h3M18 4h3v16h-3M10 8l6 4-6 4Z"/>');
     headerBrand.className = 'brand';
-    const brandTitle = document.createElement('h1'), brandVersion = document.createElement('small');
-    brandTitle.textContent = '视频助手';
-    brandVersion.textContent = platformLabel + ' · v' + VERSION;
+    const brandTitle = document.createElement('h1'), brandVersion = document.createElement('button');
+    brandTitle.textContent = '影片助手';
+    brandVersion.type = 'button';
+    brandVersion.id = 'subscriptionInfo'; brandVersion.className = 'version-link';
+    brandVersion.textContent = 'v' + VERSION + ' · 自動更新';
+    brandVersion.setAttribute('aria-haspopup', 'dialog');
+    brandVersion.setAttribute('aria-controls', 'subscriptionDialog');
+    brandVersion.title = '查看版本與訂閱方式';
+    const subscriptionDialog = get('subscriptionDialog');
+    brandVersion.onclick = () => { if (!subscriptionDialog.open) subscriptionDialog.showModal(); };
+    get('subscriptionClose').onclick = () => subscriptionDialog.close();
+    subscriptionDialog.addEventListener('click', event => {
+      if (event.target !== subscriptionDialog) return;
+      const bounds = subscriptionDialog.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) subscriptionDialog.close();
+    });
+    get('copySubscription').onclick = async () => {
+      const field = get('subscriptionLink'), feedback = get('subscriptionFeedback'), button = get('copySubscription');
+      if (button.disabled) return;
+      button.disabled = true;
+      try {
+        if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(subscriptionURL);
+        feedback.textContent = '訂閱連結已複製。';
+      } catch {
+        field.focus(); field.select();
+        feedback.textContent = '連結已選取，請手動複製。';
+      } finally { button.disabled = false; }
+    };
     headerBrand.append(brandTitle, brandVersion);
     function repairHeaderBranding() {
       for (const node of header.querySelectorAll(':scope > .logo,:scope > .brand')) {

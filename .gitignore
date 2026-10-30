@@ -1,5 +1,8 @@
 .entire/
 .codex/
+.taste-skill/
+work/
+outputs/
 .env
 .env.*
 node_modules/

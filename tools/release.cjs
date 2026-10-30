@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, '..');
 const BASE = 'https://raw.githubusercontent.com/kylezheng320-sudo/course-video-helper/main';
 const SCRIPT = 'video-helper.user.js';
 const META = 'video-helper.meta.js';
+const SUBSCRIBE = 'subscribe.user.js';
 const NAME = '学习通视频助手：弹题逐项重试';
 const NAMESPACE = 'local.chaoxing.video-helper';
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -49,11 +50,12 @@ function bundle(script) {
   return {version, script, meta, manifest: {schema: 1, channel: 'stable', version, files: {
     [SCRIPT]: {sha256: hash(script)},
     [META]: {sha256: hash(meta)},
+    [SUBSCRIBE]: {sha256: hash(script)},
   }}};
 }
 
 function checksums(root) {
-  const names = [SCRIPT, META];
+  const names = [SCRIPT, META, SUBSCRIBE];
   const directory = path.join(root, 'versions');
   if (fs.existsSync(directory)) {
     for (const name of fs.readdirSync(directory)) {
@@ -68,7 +70,8 @@ function check(root = ROOT) {
   if (fs.readFileSync(path.join(root, META), 'utf8') !== result.meta) throw new Error('Metadata file differs from script header');
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'release.json'), 'utf8'));
   if (manifest.schema !== 1 || manifest.channel !== 'stable' || manifest.version !== result.version) throw new Error('Release manifest version differs');
-  for (const name of [SCRIPT, META]) if (manifest.files?.[name]?.sha256 !== result.manifest.files[name].sha256) throw new Error('Checksum mismatch: ' + name);
+  for (const name of [SCRIPT, META, SUBSCRIBE]) if (manifest.files?.[name]?.sha256 !== result.manifest.files[name].sha256) throw new Error('Checksum mismatch: ' + name);
+  if (!fs.readFileSync(path.join(root, SUBSCRIBE)).equals(Buffer.from(result.script))) throw new Error('Subscription entry differs from current script');
   const archive = path.join(root, 'versions', 'video-helper-' + result.version + '.user.js');
   if (!fs.readFileSync(archive).equals(Buffer.from(result.script))) throw new Error('Version archive differs from current script');
   if (fs.readFileSync(path.join(root, 'CHECKSUMS.sha256'), 'utf8') !== checksums(root)) throw new Error('CHECKSUMS.sha256 differs');
@@ -81,6 +84,7 @@ function write(result, root = ROOT) {
   fs.mkdirSync(path.dirname(archive), {recursive: true});
   fs.writeFileSync(archive, result.script);
   fs.writeFileSync(path.join(root, SCRIPT), result.script);
+  fs.writeFileSync(path.join(root, SUBSCRIBE), result.script);
   fs.writeFileSync(path.join(root, META), result.meta);
   fs.writeFileSync(path.join(root, 'release.json'), JSON.stringify(result.manifest, null, 2) + '\n');
   fs.writeFileSync(path.join(root, 'CHECKSUMS.sha256'), checksums(root));

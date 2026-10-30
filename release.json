@@ -1,13 +1,16 @@
 {
   "schema": 1,
   "channel": "stable",
-  "version": "3.2.4",
+  "version": "3.3.0",
   "files": {
     "video-helper.user.js": {
-      "sha256": "0adda5eac6de37226bc49ddb8c625497683c01b238503624e3bd97cb92463a4d"
+      "sha256": "58019c0c69a31e047ebf03cc2aa1b0ee29ad08754fe9832dc29471a59f0ed6ba"
     },
     "video-helper.meta.js": {
-      "sha256": "1ef8b611d23b443117cc54759111b858e5308d2267909460e67e25e6b2a18caf"
+      "sha256": "d6ffc101d0848baeaae6beaaf1d37c7abdc25e42160d0826e406feba09034bfe"
+    },
+    "subscribe.user.js": {
+      "sha256": "58019c0c69a31e047ebf03cc2aa1b0ee29ad08754fe9832dc29471a59f0ed6ba"
     }
   }
 }

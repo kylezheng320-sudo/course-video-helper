@@ -1,0 +1,80 @@
+{
+  "version": "3.3.0",
+  "scope": "Local Chromium simulation and release packaging; actual userscript-manager upgrade not exercised.",
+  "passed": 18,
+  "failed": 0,
+  "results": [
+    {
+      "name": "Release files, subscription alias, manifest, archive and syntax agree",
+      "passed": true
+    },
+    {
+      "name": "Old 3.2.4 archive preserves published bytes",
+      "passed": true
+    },
+    {
+      "name": "Changes outside buildPanel are limited to metadata and version",
+      "passed": true
+    },
+    {
+      "name": "Identity, matching domains, grants, dependency and run timing are retained",
+      "passed": true
+    },
+    {
+      "name": "Future release updates subscription alias and preserves previous archive",
+      "passed": true
+    },
+    {
+      "name": "First open stays compact and playback remains stopped",
+      "passed": true
+    },
+    {
+      "name": "Version opens subscription dialog without starting playback",
+      "passed": true
+    },
+    {
+      "name": "Copy success reports only after the clipboard write completes",
+      "passed": true
+    },
+    {
+      "name": "Clipboard failure selects link for manual copying",
+      "passed": true
+    },
+    {
+      "name": "Escape closes dialog and returns focus to version control",
+      "passed": true
+    },
+    {
+      "name": "Opening subscription keeps the one assistant panel and preserves playback controls",
+      "passed": true
+    },
+    {
+      "name": "light subscription dialog fits 1440px viewport",
+      "passed": true
+    },
+    {
+      "name": "light subscription dialog fits 768px viewport",
+      "passed": true
+    },
+    {
+      "name": "light subscription dialog fits 390px viewport",
+      "passed": true
+    },
+    {
+      "name": "dark subscription dialog fits 1440px viewport",
+      "passed": true
+    },
+    {
+      "name": "dark subscription dialog fits 768px viewport",
+      "passed": true
+    },
+    {
+      "name": "dark subscription dialog fits 390px viewport",
+      "passed": true
+    },
+    {
+      "name": "No browser runtime errors were raised",
+      "passed": true
+    }
+  ]
+}

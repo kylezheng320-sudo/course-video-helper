@@ -1,0 +1,39 @@
+{
+  "version": "3.3.0",
+  "style": "Achromatic ledger",
+  "seed": 1828413801,
+  "scope": "既有播放面板的版本與訂閱元件；沿用既有設計，未重新抽取方向。",
+  "lint": {
+    "fail": 0,
+    "warn": 0
+  },
+  "viewports": [
+    1440,
+    768,
+    390
+  ],
+  "themes": [
+    {
+      "theme": "light",
+      "fail": 0,
+      "warnings": [
+        "hero-void"
+      ]
+    },
+    {
+      "theme": "dark",
+      "fail": 0,
+      "warnings": [
+        "hero-void"
+      ]
+    }
+  ],
+  "exceptions": {
+    "no-title": "元件為 aria-labelledby 關聯 h2 的原生對話框；主應用保留 h1。",
+    "heavy-shadow": "陰影僅用於真正浮起的原生對話框。",
+    "hero-void": "遮罩區域是置中對話框的刻意留白。"
+  },
+  "screenshotsReviewed": true,
+  "externalImages": [],
+  "data": "版本與來源來自實際常量，無示意業務數據。"
+}
