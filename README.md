@@ -2,7 +2,7 @@
 
 安裝一次，後續自動更新。
 
-用於線上課程頁面的 Tampermonkey 使用者腳本。**3.3.0** 提供固定訂閱入口、版本資訊與 GitHub 穩定版更新，同時保留播放控制與時間統計。
+用於線上課程頁面的 Tampermonkey 使用者腳本。目前穩定版為 **3.3.1**，提供固定訂閱入口、版本資訊與 GitHub 穩定版更新，同時保留播放控制與時間統計。
 
 **[安裝並訂閱穩定版 ↗](https://raw.githubusercontent.com/kylezheng320-sudo/course-video-helper/main/subscribe.user.js)**　[查看更新紀錄](CHANGELOG.md)
 
@@ -35,20 +35,22 @@
 - 依課程儲存本機可觀察到的累計播放時間。
 - 支援暫停、主題切換、收合與拖曳面板。
 
-3.3.0 新增版本與訂閱視窗；播放、章節切換、彈窗處理與計時邏輯沿用已發布版本。
+3.3.1 修復空白內容頁停住的情況：明確空內容提示穩定約 4 秒後推進；已載入且持續空白的主內容框架則等待 15 秒。仍有影片、載入狀態或未完成任務時繼續等待。
 
 ## 發布後續版本
 
 需要 Node.js，無須安裝額外依賴。
 
 1. 修改 `video-helper.user.js` 中的功能程式碼，保留目前版本號。
-2. 執行 `node tools/release.cjs prepare 3.3.1`，同步產生腳本、訂閱入口、中繼資料、版本封存與校驗值。
+2. 執行 `node tools/release.cjs prepare 3.3.2`，同步產生腳本、訂閱入口、中繼資料、版本封存與校驗值。
 3. 執行 `node tools/release.cjs check`，核對版本、語法、更新網址與檔案一致性。
 4. 將這次產生的檔案放在同一個 Git 提交中，推送至 `main`。
 
 更新下載檔案時也必須提高版本號。`release.json` 與 `CHECKSUMS.sha256` 供發布者核對；Tampermonkey 透過 `@updateURL` 與 `@downloadURL` 檢查及下載更新。
 
 本地驗證涵蓋訂閱入口與主腳本一致性、版本產生、複製連結成功及失敗狀態，以及淺深色和三種視窗寬度。檢查紀錄見 [3.3.0 驗證](validation/subscription-3.3.0.json)。
+
+空白內容辨識、載入等待、連續切換與原有播放行為的檢查紀錄見 [3.3.1 驗證](validation/empty-page-3.3.1.json)。
 
 ## 支持專案
 

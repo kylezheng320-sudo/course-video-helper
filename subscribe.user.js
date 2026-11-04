@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         学习通视频助手：弹题逐项重试
 // @namespace    local.chaoxing.video-helper
-// @version      3.3.0
+// @version      3.3.1
 // @description  課程影片播放輔助：一鍵訂閱 GitHub 穩定版並持續更新，提供播放控制、剩餘時間估算與本機統計。
 // @match        https://*.chaoxing.com/mycourse/studentstudy*
 // @match        https://*.chaoxing.com/mooc-ans/mycourse/studentstudy*
@@ -377,12 +377,13 @@
 
   const referenceJQuery = typeof jQuery === 'function' && jQuery.fn?.jquery === '3.6.0' && typeof jQuery.noConflict === 'function' ? jQuery.noConflict(true) : null;
   if (location.hostname === 'stuonline.zhihuishu.com' && /^\/stuonline\/stuLearnReportNew\/index\/?$/.test(location.pathname)) { createViewingTime().startReport(); return; }
-  const VERSION = '3.3.0';
+  const VERSION = '3.3.1';
   const TICK_MS = 600;
   const SELECT_DELAY = 600;
   const RETRY_AFTER = 3000;
   const RESPONSE_TIMEOUT = 20000;
   const ADVANCE_DELAY = 4000;
+  const BLANK_CONTENT_DELAY = 15000;
   const MARKER_TIMEOUT = 30000;
   const REPLAY_GRACE = 8000;
   const KEY = 'local-chaoxing-video-helper-v1';
@@ -454,6 +455,7 @@
     pending: false, halted: false, sawVideo: false, playedWorker: null };
   const watchedFrames = new WeakSet();
   const contentIds = new WeakMap();
+  const contentFrameLoads = new WeakMap();
   let nextContentId = 1;
   const loadedHref = location.href;
   const loadedCourse = courseSessionId();
@@ -743,7 +745,7 @@
   }
   const OUTSIDE_CONTENT = 'aside,nav,[role="navigation"],#coursetree,.posCatalog_select,.ncells,.catalog,.discussion,.discuss,.notes,#note,' +
     '[id*="discuss" i],[id*="comment" i],[data-section="discussion"],[data-section="notes"]';
-  const EMPTY_CONTENT = /^(?:(?:本|当前|该)章节|本章|本节)?暂无(?:学习|课程|章节)?内容[。！!]?$/;
+  const EMPTY_CONTENT = /^(?:(?:本|当前|當前|该|該)章[节節]|本章|本[节節])?(?:暂无|暫無)(?:学习|學習|课程|課程|章节|章節)?(?:内容|內容)[。！!]?$/;
   function chapterContentDocuments() {
     return courseDocuments().filter(doc => {
       if (doc === document) return true;
@@ -753,17 +755,25 @@
   }
   function emptyChapter() {
     const docs = chapterContentDocuments();
-    const inContent = node => frameDisplayed(node) && !node.closest(OUTSIDE_CONTENT);
-    const labels = 'p,span,div,section,article';
-    let marker = null;
-    for (const doc of docs) {
-      const matches = [...doc.querySelectorAll(labels)].filter(node => EMPTY_CONTENT.test(text(node)));
-      // 先定位最内层提示，再检查可见性；隐藏提示的父容器仍可能可见。
-      const node = matches.find(node => !matches.some(other => other !== node && node.contains(other)) && inContent(node) &&
-        !node.closest('button,a,form,[role="dialog"],.ans-videoquiz'));
-      if (node) { marker = { node, doc }; break; }
-    }
-    if (!marker) return null;
+    // 尚未展開尺寸的播放器與載入容器也屬於內容，不能把它們當成空頁。
+    const inContent = node => {
+      if (!node?.isConnected || node.closest(OUTSIDE_CONTENT)) return false;
+      const doc = node.ownerDocument, view = doc.defaultView;
+      if (!view) return false;
+      for (let current = node; current; current = current.parentElement) {
+        const style = view.getComputedStyle(current);
+        if (current.hidden || style.display === 'none' || /^(hidden|collapse)$/.test(style.visibility)) return false;
+      }
+      const frame = view.frameElement;
+      return !frame || frameDisplayed(frame);
+    };
+    const labels = 'p,span,div,section,article,font,em,strong';
+    const excluded = 'button,a,form,[role="button"],[role="dialog"],.ans-videoquiz,script,style,template,noscript';
+    const emptyLabel = value => {
+      const label = String(value || '').replace(/\s+/g, '');
+      return EMPTY_CONTENT.test(label) ? label : '';
+    };
+    const textNodes = doc => doc.createTreeWalker(doc.body || doc.documentElement || doc, 4);
     const resources = 'video,audio,#video,.video-js,.ans-job-icon,.ans-videoquiz,' + WORK_FRAME +
       ',iframe.ans-insertvideo-online,iframe.ans-insertdoc,iframe[src*="/ananas/modules/video/"],iframe[src*="/ananas/modules/document/"],iframe[src*="/document/"],' +
       'input[type="radio"],input[type="checkbox"],.tkItem_title,[data-question-title]';
@@ -772,16 +782,62 @@
       if (doc.readyState !== 'complete') return null;
       if ([...doc.querySelectorAll(resources + ',' + loading)].some(inContent)) return null;
       if ([...doc.querySelectorAll(labels)].some(node => inContent(node) && /^(正在加载|加载中|加载中\.\.\.|请稍候)[。…]*$/.test(text(node)))) return null;
-      // 主内容 iframe 尚未加载或不可读取时，不能用外层残留的空提示继续跳。
+      // 主內容框架尚未完成載入時，不採用外層殘留的空提示。
       for (const frame of doc.querySelectorAll('#iframe,iframe[data-course-content],iframe[src*="/knowledge/cards"]')) {
         if (!inContent(frame)) continue;
-        try { if (!frame.contentDocument || frame.contentDocument.readyState !== 'complete') return null; } catch { return null; }
+        try {
+          const child = frame.contentDocument;
+          if (!child || child.readyState !== 'complete') return null;
+          if (child.URL === 'about:blank' && (frame.hasAttribute('srcdoc') ||
+            frame.getAttribute('src') && !/^about:blank(?:#.*)?$/.test(frame.src))) return null;
+        } catch { return null; }
       }
     }
+    let marker = null;
+    for (const doc of docs) {
+      const matches = [...doc.querySelectorAll(labels)].filter(node => emptyLabel(text(node)));
+      // 先定位最内层提示，再检查可见性；隐藏提示的父容器仍可能可见。
+      const node = matches.find(node => !matches.some(other => other !== node && node.contains(other)) &&
+        inContent(node) && frameDisplayed(node) && !node.closest(excluded));
+      if (node) { marker = { node, doc, kind: 'label', label: emptyLabel(text(node)) }; break; }
+      // 有些空狀態把提示與下一節按鈕放在同一容器，需讀取提示文字節點。
+      const walker = textNodes(doc);
+      for (let leaf; (leaf = walker.nextNode());) {
+        const parent = leaf.parentElement, label = emptyLabel(leaf.nodeValue);
+        if (label && parent && inContent(parent) && frameDisplayed(parent) && !parent.closest(excluded)) {
+          marker = { node: parent, doc, kind: 'label', label }; break;
+        }
+      }
+      if (marker) break;
+      const alternative = [...doc.querySelectorAll('[alt],[aria-label]')].find(node =>
+        emptyLabel(node.getAttribute('alt') || node.getAttribute('aria-label')) &&
+        inContent(node) && frameDisplayed(node) && !node.closest(excluded));
+      if (alternative) {
+        marker = { node: alternative, doc, kind: 'label', label: emptyLabel(alternative.getAttribute('alt') || alternative.getAttribute('aria-label')) }; break;
+      }
+    }
+    if (!marker) {
+      // 只在已載入的主內容框架辨識完全空白；一般介紹頁和初始 about:blank 保持等待。
+      for (const doc of docs) {
+        if (doc === document || !doc.body || doc.readyState !== 'complete' || !doc.defaultView?.frameElement) continue;
+        const frame = doc.defaultView.frameElement;
+        if (!frame.hasAttribute('srcdoc') && (!frame.getAttribute('src') || /^about:blank(?:#.*)?$/.test(doc.URL))) continue;
+        if (doc.URL === 'about:blank') continue;
+        const walker = textNodes(doc);
+        let hasText = false;
+        for (let leaf; (leaf = walker.nextNode());) {
+          const parent = leaf.parentElement;
+          if (leaf.nodeValue.trim() && parent && inContent(parent) && !parent.closest('script,style,template,noscript')) { hasText = true; break; }
+        }
+        if (hasText || [...doc.body.querySelectorAll('img,svg,canvas,object,embed,iframe,form,button,a,input,select,textarea,video,audio,[role="dialog"],[contenteditable="true"]')].some(inContent)) continue;
+        marker = { node: doc.body, doc, kind: 'blank', label: '' }; break;
+      }
+    }
+    if (!marker) return null;
     const titles = '.prev_title,.chapter-title,.chapterTitle,[data-chapter-title],.content-title,h1,h2,h3';
     marker.title = docs.flatMap(doc => [...doc.querySelectorAll(titles)]).filter(inContent).map(text).join('|');
     if (!contentIds.has(marker.node)) contentIds.set(marker.node, nextContentId++);
-    marker.signature = JSON.stringify([contentIds.get(marker.node), text(marker.node), marker.title]);
+    marker.signature = JSON.stringify([contentIds.get(marker.node), marker.kind, marker.label, marker.title]);
     return marker;
   }
   function contentKey(empty = emptyChapter()) {
@@ -789,9 +845,17 @@
       if (!contentIds.has(node)) contentIds.set(node, nextContentId++);
       return contentIds.get(node);
     };
+    const loadVersion = frame => {
+      let state = contentFrameLoads.get(frame);
+      if (!state) {
+        state = { version: 0 }; contentFrameLoads.set(frame, state);
+        frame.addEventListener('load', () => { state.version++; });
+      }
+      return state.version;
+    };
     return JSON.stringify(courseDocuments().map(doc => [id(doc),
       [...doc.querySelectorAll('#iframe,iframe.ans-insertvideo-online,iframe[src*="/ananas/modules/video/index"],' + WORK_FRAME)]
-        .map(frame => [id(frame), frame.src, workers.get(frame.contentWindow)?.instance || '', workers.get(frame.contentWindow)?.mediaKey || '']),
+        .map(frame => [id(frame), frame.src, loadVersion(frame), workers.get(frame.contentWindow)?.instance || '', workers.get(frame.contentWindow)?.mediaKey || '']),
       [...doc.querySelectorAll('#video_html5_api,#video video')].map(media => [id(media), media.currentSrc || media.src])])
       .concat([['empty-chapter', empty?.signature || '']]));
   }
@@ -902,7 +966,8 @@
           navigation.emptyContent = empty.signature;
           navigation.completeSince = 0;
         }
-        advanceCompleted(now, content, '当前章节暂无内容，确认后自动进入下一节。', true);
+        advanceCompleted(now, content, empty.kind === 'blank' ? '主內容持續空白，確認載入完成後進入下一節。' :
+          '当前章节暂无内容，确认后自动进入下一节。', true, empty.kind === 'blank' ? BLANK_CONTENT_DELAY : ADVANCE_DELAY);
       } else if (/学习目标|章节导学|学习指南/.test(title) && now - navigation.since >= ADVANCE_DELAY) {
         navigation.completeSince = 0;
         const videoTab = taskTabs()
@@ -935,9 +1000,9 @@
     if (snapshot.videos.some(video => !video.complete)) { navigation.completeSince = 0; return; }
     advanceCompleted(now, content);
   }
-  function advanceCompleted(now, content, message = '', chapterOnly = false) {
+  function advanceCompleted(now, content, message = '', chapterOnly = false, delay = ADVANCE_DELAY) {
     if (!navigation.completeSince) navigation.completeSince = now;
-    if (now - navigation.completeSince < ADVANCE_DELAY || now - navigation.since < ADVANCE_DELAY) {
+    if (now - navigation.completeSince < delay || now - navigation.since < delay) {
       if (message) say(message);
       return;
     }
@@ -2475,6 +2540,7 @@ async choice_function(){
     if (/正在刷新学习页/.test(message)) return { tone: 'working', title: '刷新学习页', badge: '初始化' };
     if (/刷新后正在等待/.test(message)) return { tone: 'working', title: '恢复任务点', badge: '恢复中' };
     if (/跳过章节测验/.test(message)) return { tone: 'working', title: '跳过章节测验', badge: '切换中' };
+    if (/主內容持續空白/.test(message)) return { tone: 'waiting', title: '空白頁確認中', badge: '確認中' };
     if (/暂无内容/.test(message)) return { tone: 'waiting', title: '空章节确认中', badge: '确认中' };
     if (/选择第|已选择一个选项|已点击选项|已点击视频弹题关闭入口|等待视频弹题控件|等待视频弹题选项|已提交|当前选项错误|重新作答|平台反馈正确|继续按钮|3 秒/.test(message)) {
       return { tone: 'working', title: '处理视频弹题', badge: '弹题中' };

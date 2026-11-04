@@ -1,0 +1,112 @@
+{
+  "version": "3.3.1",
+  "scope": "Local Chromium navigation simulation; actual course page unavailable during this check.",
+  "passed": 26,
+  "failed": 0,
+  "results": [
+    {
+      "name": "文字節點與操作按鈕共用容器時仍辨識空內容",
+      "passed": true
+    },
+    {
+      "name": "font 標籤內的空內容提示可以推進",
+      "passed": true
+    },
+    {
+      "name": "圖片替代文字的明確空內容提示可以推進",
+      "passed": true
+    },
+    {
+      "name": "空內容提示含空格與繁體字仍可辨識",
+      "passed": true
+    },
+    {
+      "name": "主內容框架持續空白時延長確認後推進",
+      "passed": true
+    },
+    {
+      "name": "重用同一空內容框架並發生 load 時可連續推進",
+      "passed": true
+    },
+    {
+      "name": "只有目錄高亮變更時維持單次切換並等待",
+      "passed": true
+    },
+    {
+      "name": "空白確認期間出現影片便取消推進",
+      "passed": true
+    },
+    {
+      "name": "內容框架含文字介紹時維持等待",
+      "passed": true
+    },
+    {
+      "name": "空白框架中零高度的載入狀態仍阻止推進",
+      "passed": true
+    },
+    {
+      "name": "空白框架中零高度的影片元素仍阻止推進",
+      "passed": true
+    },
+    {
+      "name": "有明確空提示時零高度載入狀態也會阻止推進",
+      "passed": true
+    },
+    {
+      "name": "主內容框架清空並重新寫入期間維持等待",
+      "passed": true
+    },
+    {
+      "name": "空白內容仍有未完成文件任務時不推進",
+      "passed": true
+    },
+    {
+      "name": "空白框架中存在選項表單時不推進",
+      "passed": true
+    },
+    {
+      "name": "側欄中的空內容文字不視為空章節",
+      "passed": true
+    },
+    {
+      "name": "隱藏的主內容空白框架不觸發跳過",
+      "passed": true
+    },
+    {
+      "name": "空內容提示隱藏時不觸發跳過",
+      "passed": true
+    },
+    {
+      "name": "一般頁面沒有媒體或明確空提示時繼續等待",
+      "passed": true
+    },
+    {
+      "name": "初始 about:blank 框架不視為載入完成的空內容",
+      "passed": true
+    },
+    {
+      "name": "暫停後不跳過空白內容",
+      "passed": true
+    },
+    {
+      "name": "關閉 continuous 時不跳過空白內容",
+      "passed": true
+    },
+    {
+      "name": "關閉 autoNext 時不跳過空白內容",
+      "passed": true
+    },
+    {
+      "name": "下一章鎖定時維持等待",
+      "passed": true
+    },
+    {
+      "name": "原有明確空內容提示仍只等待約四秒",
+      "passed": true
+    },
+    {
+      "name": "一般影片結束後的切換與靜音繼續保留",
+      "passed": true
+    }
+  ]
+}
